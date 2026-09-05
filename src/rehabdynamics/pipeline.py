@@ -15,9 +15,12 @@ from rehabdynamics.schemas import AnalysisResult, MovementTrial
 
 LIMITATIONS = [
     "RehabDynamics v0.1 is research software and is not a medical device or diagnostic system.",
-    "The rule-based OOD screen is a guardrail, not a calibrated probability of GaitDynamics validity.",
-    "Predicted external dynamics must be validated against force-plate data in the intended population.",
-    "A pathological-gait label is escalated because the healthy-gait training domain cannot be assumed to transfer.",
+    "The rule-based OOD screen is a guardrail, not a calibrated probability "
+    "of GaitDynamics validity.",
+    "Predicted external dynamics must be validated against force-plate data "
+    "in the intended population.",
+    "A pathological-gait label is escalated because the healthy-gait training "
+    "domain cannot be assumed to transfer.",
 ]
 
 

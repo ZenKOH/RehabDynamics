@@ -26,5 +26,7 @@ class DemoDynamicsModel(DynamicsModel):
             time=trial.time.copy(),
             values=values,
             provider=self.name,
-            provenance={"warning": "Synthetic software-test output; never use clinically or scientifically."},
+            provenance={
+                "warning": "Synthetic software-test output; never use clinically or scientifically."
+            },
         )

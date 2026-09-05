@@ -41,7 +41,8 @@ def assess_ood(
     matched = [flag for flag in config.get("metadata_red_flags", []) if flag in flag_text]
     if matched:
         score = max(score, float(config.get("thresholds", {}).get("amber_max", 2.0)) + 1.0)
-        violations.append("population/domain flag requires pathological-gait validation: " + ", ".join(matched))
+        detail = "population/domain flag requires pathological-gait validation: "
+        violations.append(detail + ", ".join(matched))
 
     thresholds = config.get("thresholds", {})
     green_max = float(thresholds.get("green_max", 0.0))
@@ -54,9 +55,14 @@ def assess_ood(
         status = "red"
 
     if status == "green":
-        warnings.append("Green means no configured rule was violated; it does not prove model validity.")
+        warnings.append(
+            "Green means no configured rule was violated; it does not prove model validity."
+        )
     if metadata.get("pathology"):
-        warnings.append("Pathological gait requires cohort-specific validation before kinetic estimates are trusted.")
+        warnings.append(
+            "Pathological gait requires cohort-specific validation before "
+            "kinetic estimates are trusted."
+        )
 
     return OODAssessment(
         status=status,

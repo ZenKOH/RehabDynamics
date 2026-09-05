@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -17,12 +16,13 @@ app = typer.Typer(help="RehabDynamics research CLI")
 def analyse(
     motion: Path = typer.Argument(..., exists=True, readable=True),
     reference: Path = typer.Option(Path("configs/reference_envelope.yaml"), "--reference"),
-    predictions: Optional[Path] = typer.Option(None, "--predictions", exists=True, readable=True),
-    pathology: Optional[str] = typer.Option(None, "--pathology"),
-    assistive_device: Optional[str] = typer.Option(None, "--assistive-device"),
+    predictions: Path | None = typer.Option(None, "--predictions", exists=True, readable=True),
+    pathology: str | None = typer.Option(None, "--pathology"),
+    assistive_device: str | None = typer.Option(None, "--assistive-device"),
 ) -> None:
     """Analyse an OpenSim .mot file and optionally attach external dynamics predictions."""
-    metadata = {k: v for k, v in {"pathology": pathology, "assistive_device": assistive_device}.items() if v}
+    supplied = {"pathology": pathology, "assistive_device": assistive_device}
+    metadata = {key: value for key, value in supplied.items() if value}
     trial = parse_mot(motion, metadata=metadata)
     model = GaitDynamicsFileAdapter(predictions) if predictions else None
     result = analyse_trial(trial, reference_config=reference, model=model)

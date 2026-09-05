@@ -17,7 +17,10 @@ def make_mot(speed: float = 1.2, seconds: float = 2.0, hz: int = 100) -> str:
         "nColumns=8",
         "inDegrees=yes",
         "endheader",
-        "time\tpelvis_tx\tknee_angle_r\tknee_angle_l\thip_flexion_r\thip_flexion_l\tankle_angle_r\tankle_angle_l",
+        (
+            "time\tpelvis_tx\tknee_angle_r\tknee_angle_l\thip_flexion_r\t"
+            "hip_flexion_l\tankle_angle_r\tankle_angle_l"
+        ),
     ]
     for x in t:
         phase = 2 * np.pi * x

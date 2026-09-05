@@ -12,7 +12,10 @@ from rehabdynamics.pipeline import analyse_trial
 app = FastAPI(
     title="RehabDynamics API",
     version="0.1.0",
-    description="Research API for rehabilitation biomechanics QC, metrics and uncertainty screening.",
+    description=(
+        "Research API for rehabilitation biomechanics QC, metrics and "
+        "uncertainty screening."
+    ),
 )
 REFERENCE = Path("configs/reference_envelope.yaml")
 

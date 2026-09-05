@@ -44,14 +44,14 @@ class DynamicsPrediction:
 class OODAssessment(BaseModel):
     status: str = Field(pattern="^(green|amber|red)$")
     score: float
-    violations: list[str] = []
-    warnings: list[str] = []
+    violations: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
     config_version: str
 
 
 class AnalysisResult(BaseModel):
     trial_metrics: dict[str, float | None]
-    dynamics_metrics: dict[str, float | None] = {}
+    dynamics_metrics: dict[str, float | None] = Field(default_factory=dict)
     ood: OODAssessment
     provenance: dict[str, Any]
     limitations: list[str]

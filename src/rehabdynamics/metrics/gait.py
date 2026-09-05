@@ -12,7 +12,9 @@ def _rom_deg(series: pd.Series) -> float | None:
     clean = pd.to_numeric(series, errors="coerce").dropna()
     if clean.empty:
         return None
-    return float(clean.max() - clean.min())
+    value = float(clean.max() - clean.min())
+    # OpenSim files commonly declare inDegrees; the caller converts only when explicit.
+    return value
 
 
 def _asymmetry(a: float | None, b: float | None) -> float | None:
@@ -54,8 +56,11 @@ def compute_dynamics_metrics(pred: DynamicsPrediction | None) -> dict[str, float
         return {}
     values = pred.values
     result: dict[str, float | None] = {}
+    vertical_terms = ("force_vy", "force_vz", "vertical")
     vertical_candidates = [
-        c for c in values.columns if any(k in c.lower() for k in ("force_vy", "force_vz", "vertical"))
+        column
+        for column in values.columns
+        if any(term in column.lower() for term in vertical_terms)
     ]
     for col in vertical_candidates[:2]:
         series = pd.to_numeric(values[col], errors="coerce").dropna()

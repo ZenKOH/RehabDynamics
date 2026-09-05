@@ -13,7 +13,10 @@ from rehabdynamics.pipeline import analyse_trial
 st.set_page_config(page_title="RehabDynamics", layout="wide")
 st.title("RehabDynamics")
 st.caption("Uncertainty-aware movement intelligence for rehabilitation research")
-st.warning("Research use only. Not a medical device. Do not use outputs for diagnosis or treatment decisions.")
+st.warning(
+    "Research use only. Not a medical device. "
+    "Do not use outputs for diagnosis or treatment decisions."
+)
 
 uploaded = st.file_uploader("OpenSim motion file (.mot)", type=["mot", "sto", "txt"])
 pathology = st.text_input("Pathology / cohort (optional)", placeholder="e.g. stroke")
@@ -38,16 +41,16 @@ if uploaded:
         c3.metric("Pelvis forward speed", "n/a" if speed is None else f"{speed:.2f} m/s")
 
         candidate = [
-            c for c in trial.kinematics.columns if any(k in c for k in ("hip", "knee", "ankle"))
+            column
+            for column in trial.kinematics.columns
+            if any(term in column for term in ("hip", "knee", "ankle"))
         ][:8]
         if candidate:
             long = pd.concat([trial.time.rename("time"), trial.kinematics[candidate]], axis=1).melt(
                 id_vars="time", var_name="coordinate", value_name="value"
             )
-            st.plotly_chart(
-                px.line(long, x="time", y="value", color="coordinate"),
-                use_container_width=True,
-            )
+            figure = px.line(long, x="time", y="value", color="coordinate")
+            st.plotly_chart(figure, use_container_width=True)
         with st.expander("Machine-readable result"):
             st.json(result.model_dump(mode="json"))
     except (UnicodeDecodeError, OpenSimFormatError, ValueError) as exc:
