@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: RehabDynamics
+message: "If you use RehabDynamics in research, please cite this repository and the upstream biomechanics/model papers relevant to your analysis."
+type: software
+authors:
+  - name: RehabDynamics contributors
+version: 0.1.0
+date-released: 2026-09-05
+repository-code: https://github.com/ZenKOH/RehabDynamics
+license: Apache-2.0

@@ -1,0 +1,26 @@
+# Conservative, transparent v0.1 screening envelope.
+# These values are NOT the original GaitDynamics training distribution and MUST NOT be
+# interpreted as calibrated probabilities of model validity. They are guardrails used
+# to flag obvious departures until a population-derived OOD model is trained.
+version: "0.1-research-envelope"
+metrics:
+  sample_rate_hz: {min: 95.0, max: 105.0, weight: 1.0}
+  duration_s: {min: 1.5, max: 120.0, weight: 0.5}
+  forward_speed_m_s: {min: 0.5, max: 3.0, weight: 1.5}
+  knee_rom_r_deg: {min: 20.0, max: 100.0, weight: 1.0}
+  knee_rom_l_deg: {min: 20.0, max: 100.0, weight: 1.0}
+thresholds:
+  green_max: 0.0
+  amber_max: 2.0
+metadata_red_flags:
+  - stroke
+  - spinal_cord_injury
+  - cerebral_palsy
+  - amputation
+  - robotic_assistance
+  - exoskeleton
+  - walker
+  - crutches
+notes:
+  - "A green result means no configured rule was violated; it does not prove in-distribution status."
+  - "Neurological/pathological cohorts are deliberately escalated for review in v0.1."
