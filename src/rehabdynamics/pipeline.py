@@ -9,9 +9,8 @@ from rehabdynamics.metrics.gait import (
     finite_metric_dict,
 )
 from rehabdynamics.models.base import DynamicsModel
-from rehabdynamics.schemas import AnalysisResult, MovementTrial
 from rehabdynamics.safety.ood import assess_ood, load_reference_config
-
+from rehabdynamics.schemas import AnalysisResult, MovementTrial
 
 LIMITATIONS = [
     "RehabDynamics v0.1 is research software and is not a medical device or diagnostic system.",
