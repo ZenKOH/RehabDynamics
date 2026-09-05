@@ -1,8 +1,8 @@
 from io import StringIO
 
 import pytest
-
 from conftest import make_mot
+
 from rehabdynamics.io.opensim import OpenSimFormatError, parse_mot
 
 
