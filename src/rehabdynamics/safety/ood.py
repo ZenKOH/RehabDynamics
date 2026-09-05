@@ -7,7 +7,6 @@ import yaml
 
 from rehabdynamics.schemas import OODAssessment
 
-
 DEFAULT_WARNING = (
     "This is a transparent rule-based screening layer, not a calibrated GaitDynamics "
     "out-of-distribution probability."
