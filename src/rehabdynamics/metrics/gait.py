@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -8,19 +9,57 @@ import pandas as pd
 from rehabdynamics.schemas import DynamicsPrediction, MovementTrial
 
 
-def _rom_deg(series: pd.Series) -> float | None:
+def _header_value(header: dict[str, str], key: str) -> str | None:
+    target = key.lower()
+    for name, value in header.items():
+        if name.lower() == target:
+            return value
+    return None
+
+
+def _angles_are_degrees(trial: MovementTrial) -> bool:
+    declared = _header_value(trial.header, "inDegrees")
+    if declared is None:
+        return True
+    return declared.strip().lower() not in {"no", "false", "0"}
+
+
+def _rom_deg(series: pd.Series, *, input_in_degrees: bool) -> float | None:
     clean = pd.to_numeric(series, errors="coerce").dropna()
     if clean.empty:
         return None
     value = float(clean.max() - clean.min())
-    # OpenSim files commonly declare inDegrees; the caller converts only when explicit.
-    return value
+    return value if input_in_degrees else float(np.rad2deg(value))
 
 
 def _asymmetry(a: float | None, b: float | None) -> float | None:
     if a is None or b is None or (abs(a) + abs(b)) == 0:
         return None
     return float(200.0 * abs(a - b) / (abs(a) + abs(b)))
+
+
+def _metadata_speed(metadata: dict[str, Any]) -> float | None:
+    for key in ("walking_speed_m_s", "speed_m_s", "treadmill_speed_m_s"):
+        value = metadata.get(key)
+        if value in (None, ""):
+            continue
+        try:
+            speed = float(value)
+        except (TypeError, ValueError):
+            continue
+        if math.isfinite(speed) and speed >= 0:
+            return speed
+    return None
+
+
+def _is_treadmill_trial(metadata: dict[str, Any]) -> bool:
+    if metadata.get("treadmill") is True:
+        return True
+    context = " ".join(
+        str(metadata.get(key, "")).lower()
+        for key in ("environment", "locomotion_context", "capture_context")
+    )
+    return "treadmill" in context
 
 
 def compute_trial_metrics(trial: MovementTrial) -> dict[str, float | None]:
@@ -31,16 +70,26 @@ def compute_trial_metrics(trial: MovementTrial) -> dict[str, float | None]:
         "forward_speed_m_s": None,
     }
 
-    if "pelvis_tx" in kin.columns and trial.duration_s > 0:
-        tx = pd.to_numeric(kin["pelvis_tx"], errors="coerce").dropna()
-        if len(tx) >= 2:
-            metrics["forward_speed_m_s"] = abs(float(tx.iloc[-1] - tx.iloc[0])) / trial.duration_s
+    supplied_speed = _metadata_speed(trial.metadata)
+    if supplied_speed is not None:
+        metrics["forward_speed_m_s"] = supplied_speed
+    elif not _is_treadmill_trial(trial.metadata) and "pelvis_tx" in kin.columns:
+        if trial.duration_s > 0:
+            tx = pd.to_numeric(kin["pelvis_tx"], errors="coerce").dropna()
+            if len(tx) >= 2:
+                displacement = abs(float(tx.iloc[-1] - tx.iloc[0]))
+                metrics["forward_speed_m_s"] = displacement / trial.duration_s
 
+    input_in_degrees = _angles_are_degrees(trial)
     for joint in ("hip_flexion", "knee_angle", "ankle_angle"):
         sides: dict[str, float | None] = {}
         for side in ("r", "l"):
             col = f"{joint}_{side}"
-            value = _rom_deg(kin[col]) if col in kin.columns else None
+            value = (
+                _rom_deg(kin[col], input_in_degrees=input_in_degrees)
+                if col in kin.columns
+                else None
+            )
             name = f"{joint.replace('angle', '').rstrip('_')}_rom_{side}_deg"
             metrics[name] = value
             sides[side] = value
